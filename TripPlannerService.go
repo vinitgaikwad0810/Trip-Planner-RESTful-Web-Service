@@ -235,11 +235,17 @@ func DeletefromOldRoute(routes []PostResponse, NearbylocationId bson.ObjectId) [
 
 func Returnlowest(uberdata []Uberdata) bson.ObjectId {
 	min := 9999.00
+	minduration := 9999.00
 	var Id bson.ObjectId
 	for index, _ := range uberdata {
 		if uberdata[index].High_Estimate < min {
 			min = uberdata[index].High_Estimate
 			Id = uberdata[index].End_id
+		} else if uberdata[index].High_Estimate == min {
+			if uberdata[index].Duration < minduration {
+				minduration = uberdata[index].Duration
+				Id = uberdata[index].End_id
+			}
 		}
 
 	}
@@ -501,10 +507,10 @@ func putHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 				return
 			}
 			tripOverFlag = 1
-			fmt.Println("Trip is already over")
+			fmt.Println("\n TRIP IS ALREADY OVER. CHECK THE STATUS \n")
 			//Preparing the PUT RESPONSE
 			//w.WriteHeader(404)
-			//			fmt.Fprintf(w, "%s", "Trip is already over")
+			fmt.Fprintf(w, "%s", "\n\n---------TRIP IS ALREADY OVER. CHECK THE STATUS----------\n\n")
 
 			//	return
 		} else {
@@ -517,7 +523,10 @@ func putHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 				w.WriteHeader(404)
 				return
 			}
+		} else {
+
 		}
+
 		tripTracker.Tracker += 1
 
 	}
@@ -591,4 +600,5 @@ func main() {
 //5651151cc2be6350f9b67de7 - 101 san fernando
 
 //curl http://localhost:8080/trips/153
-//
+//curl -XPOST -H 'Content Type:application/json' -d '{"Id":"5651151cc2be6350f9b67de7","Location_ids": ["56510d0cc2be633d74cdee5c","56511459c2be6350f9b67de4","565114c2c2be6350f9b67de5","565114eec2be6350f9b67de6"]}' http://localhost:8080/trips
+//curl -H 'Accept: application/json' -X PUT http://localhost:8080/trips/153/request
